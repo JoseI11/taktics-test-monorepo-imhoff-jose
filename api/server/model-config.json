@@ -40,5 +40,10 @@
   "Personnel": {
     "dataSource": "db",
     "public": true
+  },
+  "Budget": {
+      "dataSource": "db",
+      "public": true
   }
+  
 }

@@ -7,9 +7,11 @@
     "compression": {},
     "cors": {
       "params": {
-        "origin": true,
+        "origin": ["http://localhost:9000", "http://localhost:3000"],
         "credentials": true,
-        "maxAge": 86400
+        "maxAge": 86400,
+          "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+          "allowedHeaders": "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Access-Token"
       }
     },
     "helmet#xssFilter": {},

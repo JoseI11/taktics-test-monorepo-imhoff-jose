@@ -1,0 +1,60 @@
+{
+  "name": "Budget",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": { "validateUpsert": true },
+  "properties": {
+    "name": { "type": "string", "required": true },
+    "thumbnail": { "type": "string" },
+    "date": { "type": "date", "required": true },
+    "clientName": { "type": "string", "required": true },
+
+    "totalCost": { "type": "number", "default": 0 },
+    "totalSale": { "type": "number", "default": 0 },
+
+    "chapters": {
+      "type": [
+        {
+          "type": "object",
+          "properties": {
+            "rank": { "type": "number", "required": true },
+            "description": { "type": "string" },
+
+            "saleCoefMaterial": { "type": "number", "default": 1 },
+            "saleCoefLabour": { "type": "number", "default": 1 },
+
+            "totalCost": { "type": "number", "default": 0 },
+            "totalSale": { "type": "number", "default": 0 },
+
+            "batches": {
+              "type": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "rank": { "type": "number", "required": true },
+                    "description": { "type": "string" },
+                    "amount": { "type": "number", "default": 1 },
+
+                    "materialCost": { "type": "number", "default": 0 },
+                    "labourCost": { "type": "number", "default": 0 },
+
+                    "unitCost": { "type": "number", "default": 0 },
+                    "totalCost": { "type": "number", "default": 0 },
+
+                    "unitSale": { "type": "number", "default": 0 },
+                    "totalSale": { "type": "number", "default": 0 }
+                  }
+                }
+              ],
+              "default": []
+            }
+          }
+        }
+      ],
+      "default": []
+    }
+  },
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

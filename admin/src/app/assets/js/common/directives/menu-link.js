@@ -1,7 +1,7 @@
 import menuLinkUrl from './views/menu-link.html';
 
 export default function menuLink() {
-  var directive = {
+  const directive = {
     restrict: 'A',
     transclude: true,
     replace: true,

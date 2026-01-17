@@ -1,0 +1,90 @@
+<div class="page">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Budgets</h1>
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <label>Name</label>
+              <input class="form-control" type="text" ng-model="vm.filters.name" placeholder="Filter by name" />
+            </div>
+
+            <div class="col-md-4">
+              <label>Client name</label>
+              <input class="form-control" type="text" ng-model="vm.filters.clientName" placeholder="Filter by client name" />
+            </div>
+
+            <div class="col-md-2">
+              <label>Date from</label>
+              <input class="form-control" type="date" ng-model="vm.filters.dateFrom" />
+            </div>
+
+            <div class="col-md-2">
+              <label>Date to</label>
+              <input class="form-control" type="date" ng-model="vm.filters.dateTo" />
+            </div>
+          </div>
+
+          <div class="row m-t-10">
+            <div class="col-md-12">
+              <button class="btn btn-primary" ng-click="vm.search()" ng-disabled="vm.loading">Search</button>
+              <button class="btn btn-default" ng-click="vm.clear()" ng-disabled="vm.loading">Clear</button>
+              <a class="btn btn-success pull-right" ui-sref="budgets.new">Create</a>
+            </div>
+          </div>
+
+          <div class="row m-t-10" ng-if="vm.error">
+            <div class="col-md-12">
+              <div class="alert alert-danger">{{ vm.error }}</div>
+            </div>
+          </div>
+
+          <div class="row m-t-10" ng-if="vm.loading">
+            <div class="col-md-12">
+              <span>Loading...</span>
+            </div>
+          </div>
+
+          <div class="table-responsive m-t-10" ng-if="!vm.loading">
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Thumbnail</th>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Client</th>
+                  <th>Total Cost</th>
+                  <th>Total Sale</th>
+                  <th style="width: 140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="b in vm.budgets">
+                  <td>
+                    <img ng-if="b.thumbnail" ng-src="{{ b.thumbnail }}" style="height: 40px; width: 40px; object-fit: cover;" />
+                  </td>
+                  <td>{{ b.name }}</td>
+                  <td>{{ b.date | date:'yyyy-MM-dd' }}</td>
+                  <td>{{ b.clientName }}</td>
+                  <td>{{ b.totalCost | number:2 }}</td>
+                  <td>{{ b.totalSale | number:2 }}</td>
+                  <td>
+                    <a class="btn btn-xs btn-primary" ui-sref="budgets.edit({id: b.id})">Edit</a>
+                    <button class="btn btn-xs btn-danger" ng-click="vm.delete(b)">Delete</button>
+                  </td>
+                </tr>
+
+                <tr ng-if="vm.budgets.length === 0">
+                  <td colspan="7" class="text-center">No budgets found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

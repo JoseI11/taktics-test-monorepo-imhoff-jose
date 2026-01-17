@@ -63,6 +63,13 @@ const webpackConfig = {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './build',
+    proxy: {
+    '/api': {
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+      secure: false,
+    },
+  },
   },
   plugins: [
     new webpack.ProvidePlugin({}),
