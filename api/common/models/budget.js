@@ -1,114 +1,171 @@
 'use strict';
 
-function toNumberOrZero(value) {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : 0;
+function isNil(v) {
+  return v === null || v === undefined;
 }
 
-function assertNonNegative(value, fieldPath, errors) {
-    if (value < 0) {
-        errors.push(`${fieldPath} cannot be negative`);
-    }
+function ensureArray(v) {
+  return Array.isArray(v) ? v : [];
+}
+
+function parseNumberStrict(value, fieldPath, errors, { defaultValue = 0 } = {}) {
+  // Permitimos ''/null/undefined => defaultValue
+  if (isNil(value)) return defaultValue;
+
+  // si es string, trim
+  const raw = (typeof value === 'string') ? value.trim() : value;
+
+  if (raw === '') return defaultValue;
+
+  const n = Number(raw);
+
+  if (!Number.isFinite(n)) {
+    errors.push(`${fieldPath} must be a finite number`);
+    return defaultValue;
+  }
+
+  return n;
+}
+
+function assertNonNegative(n, fieldPath, errors) {
+  if (n < 0) errors.push(`${fieldPath} cannot be negative`);
+}
+
+function validateAndNormalizeBudgetTree(budget) {
+  const errors = [];
+
+  budget.chapters = ensureArray(budget.chapters);
+
+  budget.chapters.forEach((chapter, ci) => {
+    chapter.rank = parseNumberStrict(chapter.rank, `chapters[${ci}].rank`, errors, { defaultValue: 0 });
+    assertNonNegative(chapter.rank, `chapters[${ci}].rank`, errors);
+
+    chapter.saleCoefMaterial = parseNumberStrict(
+      chapter.saleCoefMaterial,
+      `chapters[${ci}].saleCoefMaterial`,
+      errors,
+      { defaultValue: 1 }
+    );
+    chapter.saleCoefLabour = parseNumberStrict(
+      chapter.saleCoefLabour,
+      `chapters[${ci}].saleCoefLabour`,
+      errors,
+      { defaultValue: 1 }
+    );
+
+    assertNonNegative(chapter.saleCoefMaterial, `chapters[${ci}].saleCoefMaterial`, errors);
+    assertNonNegative(chapter.saleCoefLabour, `chapters[${ci}].saleCoefLabour`, errors);
+
+    chapter.batches = ensureArray(chapter.batches);
+
+    chapter.batches.forEach((batch, bi) => {
+      batch.rank = parseNumberStrict(batch.rank, `chapters[${ci}].batches[${bi}].rank`, errors, { defaultValue: 0 });
+      assertNonNegative(batch.rank, `chapters[${ci}].batches[${bi}].rank`, errors);
+
+      batch.amount = parseNumberStrict(batch.amount, `chapters[${ci}].batches[${bi}].amount`, errors, { defaultValue: 0 });
+      assertNonNegative(batch.amount, `chapters[${ci}].batches[${bi}].amount`, errors);
+
+      batch.materialCost = parseNumberStrict(
+        batch.materialCost,
+        `chapters[${ci}].batches[${bi}].materialCost`,
+        errors,
+        { defaultValue: 0 }
+      );
+      assertNonNegative(batch.materialCost, `chapters[${ci}].batches[${bi}].materialCost`, errors);
+
+      batch.labourCost = parseNumberStrict(
+        batch.labourCost,
+        `chapters[${ci}].batches[${bi}].labourCost`,
+        errors,
+        { defaultValue: 0 }
+      );
+      assertNonNegative(batch.labourCost, `chapters[${ci}].batches[${bi}].labourCost`, errors);
+    });
+  });
+
+  return errors;
+}
+
+function stableSortByRank(arr, getRank) {
+  return ensureArray(arr)
+    .map((x, idx) => ({ x, idx }))
+    .sort((a, b) => (getRank(a.x) - getRank(b.x)) || (a.idx - b.idx))
+    .map((w) => w.x);
 }
 
 function recalculateBudgetTree(budget) {
-    const chapters = Array.isArray(budget.chapters) ? budget.chapters : [];
+  const chapters = stableSortByRank(budget.chapters, (c) => Number(c.rank) || 0);
+  budget.chapters = chapters;
 
-    // Keep consistent order
-    chapters.sort((a, b) => toNumberOrZero(a.rank) - toNumberOrZero(b.rank));
+  let budgetTotalCost = 0;
+  let budgetTotalSale = 0;
 
-    let budgetTotalCost = 0;
-    let budgetTotalSale = 0;
+  chapters.forEach((chapter) => {
+    const coefM = Number.isFinite(chapter.saleCoefMaterial) ? chapter.saleCoefMaterial : 1;
+    const coefL = Number.isFinite(chapter.saleCoefLabour) ? chapter.saleCoefLabour : 1;
 
-    chapters.forEach((chapter) => {
-        chapter.rank = toNumberOrZero(chapter.rank);
+    const batches = stableSortByRank(chapter.batches, (b) => Number(b.rank) || 0);
+    chapter.batches = batches;
 
-        chapter.saleCoefMaterial =
-            chapter.saleCoefMaterial == null ? 1 : toNumberOrZero(chapter.saleCoefMaterial);
-        chapter.saleCoefLabour =
-            chapter.saleCoefLabour == null ? 1 : toNumberOrZero(chapter.saleCoefLabour);
+    let chapterTotalCost = 0;
+    let chapterTotalSale = 0;
 
-        const batches = Array.isArray(chapter.batches) ? chapter.batches : [];
-        batches.sort((a, b) => toNumberOrZero(a.rank) - toNumberOrZero(b.rank));
+    batches.forEach((batch) => {
+      const amount = Number(batch.amount) || 0;
+      const material = Number(batch.materialCost) || 0;
+      const labour = Number(batch.labourCost) || 0;
 
-        let chapterTotalCost = 0;
-        let chapterTotalSale = 0;
+      batch.unitCost = material + labour;
+      batch.totalCost = batch.unitCost * amount;
 
-        batches.forEach((batch) => {
-            batch.rank = toNumberOrZero(batch.rank);
-            batch.amount = batch.amount == null ? 1 : toNumberOrZero(batch.amount);
+      const unitSaleMaterial = material * coefM;
+      const unitSaleLabour = labour * coefL;
+      batch.unitSale = unitSaleMaterial + unitSaleLabour;
+      batch.totalSale = batch.unitSale * amount;
 
-            batch.materialCost = toNumberOrZero(batch.materialCost);
-            batch.labourCost = toNumberOrZero(batch.labourCost);
-
-            // COSTS
-            batch.unitCost = batch.materialCost + batch.labourCost;
-            batch.totalCost = batch.unitCost * batch.amount;
-
-            // SALES (apply chapter coefficients to each component)
-            const unitSaleMaterial = batch.materialCost * chapter.saleCoefMaterial;
-            const unitSaleLabour = batch.labourCost * chapter.saleCoefLabour;
-            batch.unitSale = unitSaleMaterial + unitSaleLabour;
-            batch.totalSale = batch.unitSale * batch.amount;
-
-            chapterTotalCost += batch.totalCost;
-            chapterTotalSale += batch.totalSale;
-        });
-
-        chapter.totalCost = chapterTotalCost;
-        chapter.totalSale = chapterTotalSale;
-
-        budgetTotalCost += chapterTotalCost;
-        budgetTotalSale += chapterTotalSale;
+      chapterTotalCost += batch.totalCost;
+      chapterTotalSale += batch.totalSale;
     });
 
-    budget.totalCost = budgetTotalCost;
-    budget.totalSale = budgetTotalSale;
-}
+    chapter.totalCost = chapterTotalCost;
+    chapter.totalSale = chapterTotalSale;
 
-function validateNoNegatives(budget) {
-    const errors = [];
+    budgetTotalCost += chapterTotalCost;
+    budgetTotalSale += chapterTotalSale;
+  });
 
-    const chapters = Array.isArray(budget.chapters) ? budget.chapters : [];
-    chapters.forEach((chapter, ci) => {
-        const coefM = chapter.saleCoefMaterial == null ? 1 : toNumberOrZero(chapter.saleCoefMaterial);
-        const coefL = chapter.saleCoefLabour == null ? 1 : toNumberOrZero(chapter.saleCoefLabour);
-
-        assertNonNegative(coefM, `chapters[${ci}].saleCoefMaterial`, errors);
-        assertNonNegative(coefL, `chapters[${ci}].saleCoefLabour`, errors);
-
-        const batches = Array.isArray(chapter.batches) ? chapter.batches : [];
-        batches.forEach((batch, bi) => {
-            const amount = batch.amount == null ? 1 : toNumberOrZero(batch.amount);
-            const mCost = toNumberOrZero(batch.materialCost);
-            const lCost = toNumberOrZero(batch.labourCost);
-
-            assertNonNegative(amount, `chapters[${ci}].batches[${bi}].amount`, errors);
-            assertNonNegative(mCost, `chapters[${ci}].batches[${bi}].materialCost`, errors);
-            assertNonNegative(lCost, `chapters[${ci}].batches[${bi}].labourCost`, errors);
-        });
-    });
-
-    return errors;
+  budget.totalCost = budgetTotalCost;
+  budget.totalSale = budgetTotalSale;
 }
 
 module.exports = function (Budget) {
-    Budget.observe('before save', function (ctx, next) {
-        const data = ctx.instance || ctx.data;
-        if (!data) return next();
+  Budget.observe('before save', function (ctx, next) {
+    const isCreate = !!ctx.instance;
+    const data = ctx.instance || ctx.data;
+    if (!data) return next();
 
-        if (!Array.isArray(data.chapters)) data.chapters = [];
+    // ✅ Solo validar/recalcular árbol si:
+    // - es create
+    // - o en update realmente mandaron chapters
+    const hasChapters = isCreate || (ctx.data && Object.prototype.hasOwnProperty.call(ctx.data, 'chapters'));
 
-        const validationErrors = validateNoNegatives(data);
-        if (validationErrors.length > 0) {
-            const err = Object.assign(new Error(validationErrors.join('; ')), {
-                statusCode: 422,
-                code: 'VALIDATION_ERROR'
-            });
-            return next(err);
-        }
+    if (!hasChapters) {
+      // no toques chapters/totales si no vinieron
+      return next();
+    }
 
-        recalculateBudgetTree(data);
-        next();
-    });
+    data.chapters = ensureArray(data.chapters);
+
+    const errors = validateAndNormalizeBudgetTree(data);
+    if (errors.length) {
+      const err = Object.assign(new Error(errors.join('; ')), {
+        statusCode: 422,
+        code: 'VALIDATION_ERROR',
+      });
+      return next(err);
+    }
+
+    recalculateBudgetTree(data);
+    return next();
+  });
 };
