@@ -9,10 +9,10 @@ function ensureArray(v) {
 }
 
 function parseNumberStrict(value, fieldPath, errors, { defaultValue = 0 } = {}) {
-  // Permitimos ''/null/undefined => defaultValue
+ 
   if (isNil(value)) return defaultValue;
 
-  // si es string, trim
+ 
   const raw = (typeof value === 'string') ? value.trim() : value;
 
   if (raw === '') return defaultValue;
@@ -138,19 +138,26 @@ function recalculateBudgetTree(budget) {
   budget.totalSale = budgetTotalSale;
 }
 
+/**
+ * Attaches a before save observer to the Budget model.
+ *
+ * This observer normalizes and validates the budget tree.
+ * If the budget tree is invalid, it will return an error with
+ * a 422 status code and a VALIDATION_ERROR code.
+ * If the budget tree is valid, it will recalculate the totals for
+ * each chapter and batch.
+ */
+
 module.exports = function (Budget) {
   Budget.observe('before save', function (ctx, next) {
     const isCreate = !!ctx.instance;
     const data = ctx.instance || ctx.data;
     if (!data) return next();
 
-    // ✅ Solo validar/recalcular árbol si:
-    // - es create
-    // - o en update realmente mandaron chapters
     const hasChapters = isCreate || (ctx.data && Object.prototype.hasOwnProperty.call(ctx.data, 'chapters'));
 
     if (!hasChapters) {
-      // no toques chapters/totales si no vinieron
+   
       return next();
     }
 

@@ -34,10 +34,10 @@ module.exports = function(app) {
 
     Budget.create(demo, function(createErr) {
       if (createErr) {
-        // opcional: console.error('Seed Budget error', createErr);
+        console.error('Seed Budget error', createErr);
         return;
       }
-      // opcional: console.log('Seed Budget created');
+      console.log('Seed Budget created');
     });
   });
 };
