@@ -1,3 +1,6 @@
+app/assets/js/common/config/test
+build
+
 .DS_Store
 Thumbs.db
 .idea
@@ -5,12 +8,19 @@ node_modules
 app/bower_components
 _backups
 .sass-cache
+
+# CSS compilado - NO debe estar en Git
+src/app/assets/css/materialism.css
+src/app/assets/css/materialism.css.map
 app/assets/css/materialism.css
 app/assets/css/materialism.css.map
+
 .tmp
 releases/
 app/dist/
 app.constants.js
-
 app/assets/js/common/config/test
 build
+
+# Windows metadata
+*.Zone.Identifier
