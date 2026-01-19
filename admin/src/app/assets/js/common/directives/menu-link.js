@@ -21,8 +21,10 @@ export default function menuLink() {
   function link(scope, element, attrs, linkCtrl) {
     if (linkCtrl.isSelected(attrs.href)) linkCtrl.setBreadcrumb(attrs.name);
 
-    element.click(function () {
-      linkCtrl.setBreadcrumb(attrs.name);
+    element.on('click', function () {
+      scope.$applyAsync(() => {
+        linkCtrl.setBreadcrumb(attrs.name);
+      });
     });
 
     scope.isSelected = function () {
