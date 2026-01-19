@@ -1,6 +1,14 @@
-<div class="page">
+<div class="page budgets-page">
   <div class="row">
     <div class="col-md-12">
+      <div class="row" ng-if="vm.flash">
+        <div class="col-md-12">
+          <div class="alert alert-{{vm.flash.type}}" style="margin-top: 10px;">
+            {{ vm.flash.text }}
+          </div>
+        </div>
+      </div>
+      
       <h1>Budgets</h1>
 
       <div class="panel panel-default">
@@ -13,7 +21,8 @@
 
             <div class="col-md-4">
               <label>Client name</label>
-              <input class="form-control" type="text" ng-model="vm.filters.clientName" placeholder="Filter by client name" />
+              <input class="form-control" type="text" ng-model="vm.filters.clientName"
+                placeholder="Filter by client name" />
             </div>
 
             <div class="col-md-2">
@@ -29,9 +38,11 @@
 
           <div class="row m-t-10">
             <div class="col-md-12">
-              <button class="btn btn-primary" ng-click="vm.search()" ng-disabled="vm.loading">Search</button>
-              <button class="btn btn-default" ng-click="vm.clear()" ng-disabled="vm.loading">Clear</button>
-              <a class="btn btn-success pull-right" ui-sref="budgets.new">Create</a>
+              <button type="button" class="btn btn-primary" ng-click="vm.search()"
+                ng-disabled="vm.loading">Search</button>
+              <button type="button" class="btn btn-default" ng-click="vm.clear()"
+                ng-disabled="vm.loading">Clear</button>
+              <a class="btn btn-success pull-right" ui-sref="budgetCreate">Create</a>
             </div>
           </div>
 
@@ -63,7 +74,8 @@
               <tbody>
                 <tr ng-repeat="b in vm.budgets">
                   <td>
-                    <img ng-if="b.thumbnail" ng-src="{{ b.thumbnail }}" style="height: 40px; width: 40px; object-fit: cover;" />
+                    <img ng-if="b.thumbnail" ng-src="{{ b.thumbnail }}"
+                      style="height: 40px; width: 40px; object-fit: cover;" />
                   </td>
                   <td>{{ b.name }}</td>
                   <td>{{ b.date | date:'yyyy-MM-dd' }}</td>
@@ -71,8 +83,8 @@
                   <td>{{ b.totalCost | number:2 }}</td>
                   <td>{{ b.totalSale | number:2 }}</td>
                   <td>
-                    <a class="btn btn-xs btn-primary" ui-sref="budgets.edit({id: b.id})">Edit</a>
-                    <button class="btn btn-xs btn-danger" ng-click="vm.delete(b)">Delete</button>
+                    <a class="btn btn-xs btn-primary" ui-sref="budgetDetail({ id: b.id })">Edit</a>
+                    <button type="button" class="btn btn-xs btn-danger" ng-click="vm.delete(b)">Delete</button>
                   </td>
                 </tr>
 
