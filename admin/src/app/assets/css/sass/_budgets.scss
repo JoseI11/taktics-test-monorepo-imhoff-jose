@@ -1,0 +1,145 @@
+/* =========================
+   Budgets - UI polish
+   ========================= */
+
+/* Alert más prolijo */
+.budgets-page .alert {
+  margin-top: 10px;
+}
+
+/* Panel filtros: que respire un poco */
+.budgets-page .panel-body .row > [class*="col-"] {
+  margin-bottom: 10px;
+}
+
+/* Botonera: en desktop queda a la derecha; en mobile baja prolijo */
+.budgets-page .budgets-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Tabla: menos “gigante” */
+.budgets-page .table > thead > tr > th,
+.budgets-page .table > tbody > tr > td {
+  vertical-align: middle;
+  padding: 8px;
+}
+
+/* Thumbnail */
+.budgets-page .budget-thumb {
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #eee;
+}
+
+/* Actions: botones pegaditos como en sistemas reales */
+.budgets-page .budget-actions {
+  white-space: nowrap;
+}
+.budgets-page .budget-actions .btn {
+  margin-right: 6px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+  /* en tablets: filtros 2 columnas se acomodan bien */
+  .budgets-page .panel-body .row > [class*="col-"] {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* en mobile: botones arriba del todo y full width si hace falta */
+  .budgets-page .budgets-actions {
+    justify-content: flex-start;
+  }
+
+  /* tabla: reduce padding */
+  .budgets-page .table > thead > tr > th,
+  .budgets-page .table > tbody > tr > td {
+    padding: 6px;
+  }
+
+  /* Actions: que no rompa línea feo */
+  .budgets-page .budget-actions .btn {
+    margin-bottom: 6px;
+  }
+}
+/* ===== DETAIL PAGE POLISH ===== */
+.budgets-page .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll iOS */
+}
+
+/* Tabla detail: ancho mínimo + inputs responsivos */
+.budgets-page .budgets-detail-table {
+  min-width: 1200px;
+  margin-bottom: 0;
+}
+
+.budgets-page .budgets-detail-table th,
+.budgets-page .budgets-detail-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Inputs dentro de la tabla */
+.budgets-page .budgets-detail-table input.form-control,
+.budgets-page .budgets-detail-table input.input-sm {
+  min-width: 80px;
+  font-size: 13px;
+}
+
+/* Botones de acción en detail */
+.budgets-page .detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.budgets-page .detail-actions .btn {
+  margin: 0;
+}
+
+/* ===== Responsive Detail ===== */
+@media (max-width: 992px) {
+  .budgets-page .budgets-detail-table {
+    min-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Tabla más compacta en mobile */
+  .budgets-page .budgets-detail-table {
+    min-width: 900px;
+    font-size: 12px;
+  }
+
+  .budgets-page .budgets-detail-table th,
+  .budgets-page .budgets-detail-table td {
+    padding: 6px 4px;
+  }
+
+  .budgets-page .budgets-detail-table input.form-control,
+  .budgets-page .budgets-detail-table input.input-sm {
+    min-width: 60px;
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+
+  /* Botones apilados en mobile */
+  .budgets-page .detail-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .budgets-page .detail-actions .btn {
+    width: 100%;
+  }
+}
