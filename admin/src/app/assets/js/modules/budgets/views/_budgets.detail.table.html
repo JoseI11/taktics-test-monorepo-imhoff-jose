@@ -1,0 +1,123 @@
+
+<div class="table-responsive m-t-10">
+    <table class="table table-bordered table-striped budgets-detail-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Rank</th>
+                <th>Description</th>
+                <th style="width: 120px;">Amount</th>
+                <th style="width: 140px;">Material Cost</th>
+                <th style="width: 140px;">Labour Cost</th>
+                <th style="width: 140px;">Unit Cost</th>
+                <th style="width: 140px;">Total Cost</th>
+                <th style="width: 140px;">Unit Sale</th>
+                <th style="width: 140px;">Total Sale</th>
+                <th style="width: 170px;">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- CHAPTER ROW -->
+            <tr ng-repeat-start="chapter in vm.budget.chapters track by $index"
+                style="background: #f5f5f5; font-weight: 600;">
+                <td>
+                    <input class="form-control input-sm" type="number" ng-model="chapter.rank"
+                        ng-change="vm.recalculateLocal()" />
+                </td>
+
+                <td>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="form-control input-sm" type="text" ng-model="chapter.description"
+                                placeholder="" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <input class="form-control input-sm" type="text" inputmode="decimal"
+                                ng-model="chapter.saleCoefMaterial" ng-change="vm.recalculateLocal()"
+                                placeholder="material"
+                                ng-pattern="/^\d*(\.\d*)?$/" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <input class="form-control input-sm" type="text" inputmode="decimal"
+                                ng-model="chapter.saleCoefLabour" ng-change="vm.recalculateLocal()"
+                                placeholder="labour"
+                                ng-pattern="/^\d*(\.\d*)?$/" />
+
+                        </div>
+                    </div>
+                </td>
+
+                <td colspan="3" class="text-muted">
+                    Chapter (material/labour coefficients)
+                </td>
+
+                <td class="text-right">{{ chapter.totalCost | number:2 }}</td>
+                <td></td>
+                <td></td>
+                <td class="text-right">{{ chapter.totalSale | number:2 }}</td>
+
+                <td class="text-right">
+                    <button type="button"   class="btn btn-xs btn-primary" ng-click="vm.addBatch(chapter)" ng-disabled="vm.saving">
+                        + Batch
+                    </button>
+                    <button type="button" class="btn btn-xs btn-danger" ng-click="vm.confirmRemoveChapter($index)" >
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- BATCH ROWS -->
+            <tr ng-repeat="batch in (chapter.batches || []) track by $index" ng-repeat-end>
+                <td>
+                    <input class="form-control input-sm" type="number" ng-model="batch.rank"
+                        ng-change="vm.recalculateLocal()" />
+                </td>
+
+                <td>
+                    <div style="padding-left: 18px;">
+                        <span class="text-muted">↳</span>
+                        <input class="form-control input-sm" type="text" ng-model="batch.description"
+                            placeholder="Batch description" />
+                    </div>
+                </td>
+
+                <td>
+                    <input class="form-control input-sm" type="text" inputmode="numeric" ng-model="batch.amount"
+                        ng-change="vm.recalculateLocal()" ng-blur="vm.sanitizeAmount(batch)"
+                        ng-pattern="/^\d*$/" placeholder="0" />
+                </td>
+
+                <td>
+                    <input class="form-control input-sm" type="text" inputmode="decimal" ng-model="batch.materialCost"
+                        ng-change="vm.recalculateLocal()" ng-blur="vm.sanitizeMoney(batch, 'materialCost')" 
+                        ng-pattern="/^\d*(\.\d*)?$/"
+                        />
+                </td>
+
+                <td>
+                    <input class="form-control input-sm" type="text" inputmode="decimal" ng-model="batch.labourCost"
+                        ng-change="vm.recalculateLocal()" ng-blur="vm.sanitizeMoney(batch, 'labourCost')" 
+                        ng-pattern="/^\d*(\.\d*)?$/"
+                        />
+                </td>
+
+                <td class="text-right">{{ batch.unitCost | number:2 }}</td>
+                <td class="text-right">{{ batch.totalCost | number:2 }}</td>
+                <td class="text-right">{{ batch.unitSale | number:2 }}</td>
+                <td class="text-right">{{ batch.totalSale | number:2 }}</td>
+
+                <td class="text-right">
+                    <button type="button" class="btn btn-xs btn-danger" ng-click="vm.confirmRemoveBatch(chapter, $index)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <tr ng-if="(vm.budget.chapters || []).length === 0">
+                <td colspan="10" class="text-center">No chapters yet</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
